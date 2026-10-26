@@ -1,11 +1,17 @@
-print("start")
 local ScriptCode = [[
 local time = tick()
 local TeleportService = game:GetService("TeleportService")
 local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
 local PlaceId = 142823291
-print("start2")
+print("start")
+
+if getgenv().ScriptCode then
+    if queue_on_teleport then
+        queue_on_teleport(getgenv().ScriptCode)
+    end
+end
+
 local function FindAndJoin()
     local Servers, Cursor = {}, ""
 
@@ -34,10 +40,13 @@ local function FindAndJoin()
         TeleportService:Teleport(PlaceId, Players.LocalPlayer)
     end
 end
+
 while tick() - time<10 do
     task.wait()
 end
+
 FindAndJoin()
+
 pcall(function()
     local GuiService = game:GetService("GuiService")
     GuiService.ErrorMessageChanged:Connect(function(msg)
@@ -49,14 +58,13 @@ pcall(function()
 end)
 ]]
 
--- СОХРАНЯЕМ КОД В ГЛОБАЛЬНУЮ ПЕРЕМЕННУЮ (ЭТОЙ СТРОКИ НЕ ХВАТАЛО)
+-- СОХРАНЯЕМ КОД В ГЛОБАЛЬНУЮ ПАМЯТЬ (ЭТО ПЕРЕЖИВАЕТ ТЕЛЕПОРТ)
 getgenv().ScriptCode = ScriptCode
 
--- ЗАПУСКАЕМ КОД ПРЯМО СЕЙЧАС
+-- ЗАПУСКАЕМ СЕЙЧАС
 loadstring(ScriptCode)()
 
--- ОБОРАЧИВАЕМ ВЕСЬ КОД В АВТОПЕРЕЗАПУСК
+-- НАСТРАИВАЕМ ПЕРВЫЙ ПЕРЕЗАПУСК
 if queue_on_teleport then
     queue_on_teleport(ScriptCode)
-    print("[Requeue] queue_on_teleport настроен")
 end
