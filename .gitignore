@@ -1,11 +1,11 @@
-
+print("start")
 local ScriptCode = [[
 local time = tick()
 local TeleportService = game:GetService("TeleportService")
 local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
 local PlaceId = 142823291
-print("start")
+print("start2")
 local function FindAndJoin()
     local Servers, Cursor = {}, ""
 
