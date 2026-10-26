@@ -49,10 +49,14 @@ pcall(function()
 end)
 ]]
 
+-- СОХРАНЯЕМ КОД В ГЛОБАЛЬНУЮ ПЕРЕМЕННУЮ (ЭТОЙ СТРОКИ НЕ ХВАТАЛО)
+getgenv().ScriptCode = ScriptCode
+
 -- ЗАПУСКАЕМ КОД ПРЯМО СЕЙЧАС
+loadstring(ScriptCode)()
 
 -- ОБОРАЧИВАЕМ ВЕСЬ КОД В АВТОПЕРЕЗАПУСК
-if queue_on_teleport and getgenv().ScriptCode then
-    queue_on_teleport(getgenv().ScriptCode)
-    print("[Requeue] queue_on_teleport перерегистрирован")
+if queue_on_teleport then
+    queue_on_teleport(ScriptCode)
+    print("[Requeue] queue_on_teleport настроен")
 end
