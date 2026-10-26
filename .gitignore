@@ -1,4 +1,3 @@
-local ScriptCode = [[
 local time = tick()
 local TeleportService = game:GetService("TeleportService")
 local Players = game:GetService("Players")
@@ -6,47 +5,47 @@ local HttpService = game:GetService("HttpService")
 local PlaceId = 142823291
 print("start")
 
-if getgenv().ScriptCode then
-    if queue_on_teleport then
-        queue_on_teleport(getgenv().ScriptCode)
-    end
-end
+-- ЗАЩИТА ОТ ДВОЙНОГО ЗАПУСКА
+if getgenv().IsJoining then return end
+getgenv().IsJoining = true
 
+-- Защита от телепорта, если он уже идет
 local function FindAndJoin()
     local Servers, Cursor = {}, ""
-
     for _ = 1, 10 do
         local Url = "https://games.roblox.com/v1/games/"..PlaceId.."/servers/Public?limit=100&sortOrder=Asc"
         if Cursor ~= "" then Url ..= "&cursor="..Cursor end
-
         local ok, r = pcall(request, {Url = Url, Method = "GET"})
         if not (ok and r.StatusCode == 200) then break end
-
         local Data = HttpService:JSONDecode(r.Body)
         for _, Srv in ipairs(Data.data) do
             if Srv.playing < 4 and Srv.id ~= game.JobId then
                 Servers[#Servers + 1] = Srv.id
             end
         end
-
         Cursor = Data.nextPageCursor or ""
         if Cursor == "" then break end
         task.wait(0.2)
     end
-
-    if #Servers > 0 then
-        TeleportService:TeleportToPlaceInstance(PlaceId, Servers[math.min(1000, #Servers)], Players.LocalPlayer)
-    else
-        TeleportService:Teleport(PlaceId, Players.LocalPlayer)
-    end
+    
+    -- Оборачиваем в pcall, чтобы ошибка IsTeleporting не ломала скрипт
+    pcall(function()
+        if #Servers > 0 then
+            TeleportService:TeleportToPlaceInstance(PlaceId, Servers[math.min(1000, #Servers)], Players.LocalPlayer)
+        else
+            TeleportService:Teleport(PlaceId, Players.LocalPlayer)
+        end
+    end)
 end
 
-while tick() - time<10 do
+-- Ждем загрузки
+while tick() - time < 10 do
     task.wait()
 end
 
 FindAndJoin()
 
+-- Обработчики вылетов/киков
 pcall(function()
     local GuiService = game:GetService("GuiService")
     GuiService.ErrorMessageChanged:Connect(function(msg)
@@ -56,15 +55,3 @@ pcall(function()
         end
     end)
 end)
-]]
-
--- СОХРАНЯЕМ КОД В ГЛОБАЛЬНУЮ ПАМЯТЬ (ЭТО ПЕРЕЖИВАЕТ ТЕЛЕПОРТ)
-getgenv().ScriptCode = ScriptCode
-
--- ЗАПУСКАЕМ СЕЙЧАС
-loadstring(ScriptCode)()
-
--- НАСТРАИВАЕМ ПЕРВЫЙ ПЕРЕЗАПУСК
-if queue_on_teleport then
-    queue_on_teleport(ScriptCode)
-end
