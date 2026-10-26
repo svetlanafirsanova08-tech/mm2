@@ -1,15 +1,14 @@
-local time = tick()
 local TeleportService = game:GetService("TeleportService")
 local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
 local PlaceId = 142823291
+
 print("start")
 
--- ЗАЩИТА ОТ ДВОЙНОГО ЗАПУСКА
-if getgenv().IsJoining then return end
-getgenv().IsJoining = true
+-- Ждем загрузки игры
+task.wait(10)
 
--- Защита от телепорта, если он уже идет
+-- 1. Ищем сервер и телепортируемся
 local function FindAndJoin()
     local Servers, Cursor = {}, ""
     for _ = 1, 10 do
@@ -27,8 +26,7 @@ local function FindAndJoin()
         if Cursor == "" then break end
         task.wait(0.2)
     end
-    
-    -- Оборачиваем в pcall, чтобы ошибка IsTeleporting не ломала скрипт
+
     pcall(function()
         if #Servers > 0 then
             TeleportService:TeleportToPlaceInstance(PlaceId, Servers[math.min(1000, #Servers)], Players.LocalPlayer)
@@ -38,20 +36,11 @@ local function FindAndJoin()
     end)
 end
 
--- Ждем загрузки
-while tick() - time < 10 do
-    task.wait()
-end
-
 FindAndJoin()
 
--- Обработчики вылетов/киков
+-- 2. Ждем 15 секунд (чтобы телепорт завершился) и делаем РЕДЖОИН
+-- Это заставит клиент перезапуститься, и скрипт можно будет запустить заново
+task.wait(15)
 pcall(function()
-    local GuiService = game:GetService("GuiService")
-    GuiService.ErrorMessageChanged:Connect(function(msg)
-        if msg and msg ~= "" then
-            task.wait(0.5)
-            FindAndJoin()
-        end
-    end)
+    TeleportService:Teleport(PlaceId, Players.LocalPlayer)
 end)
