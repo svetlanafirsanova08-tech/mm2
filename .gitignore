@@ -1,14 +1,58 @@
-# A fast, small, safe, gradually typed embeddable scripting language derived from Lua
-#
-# https://github.com/luau-lang/luau
-# https://luau.org/
 
-# Code coverage
-coverage.out
+local ScriptCode = [[
+local time = tick()
+local TeleportService = game:GetService("TeleportService")
+local Players = game:GetService("Players")
+local HttpService = game:GetService("HttpService")
+local PlaceId = 142823291
+print("start")
+local function FindAndJoin()
+    local Servers, Cursor = {}, ""
 
-# Profiling
-profile.out
-profile.svg
+    for _ = 1, 10 do
+        local Url = "https://games.roblox.com/v1/games/"..PlaceId.."/servers/Public?limit=100&sortOrder=Asc"
+        if Cursor ~= "" then Url ..= "&cursor="..Cursor end
 
-# Time trace
-trace.json
+        local ok, r = pcall(request, {Url = Url, Method = "GET"})
+        if not (ok and r.StatusCode == 200) then break end
+
+        local Data = HttpService:JSONDecode(r.Body)
+        for _, Srv in ipairs(Data.data) do
+            if Srv.playing < 4 and Srv.id ~= game.JobId then
+                Servers[#Servers + 1] = Srv.id
+            end
+        end
+
+        Cursor = Data.nextPageCursor or ""
+        if Cursor == "" then break end
+        task.wait(0.2)
+    end
+
+    if #Servers > 0 then
+        TeleportService:TeleportToPlaceInstance(PlaceId, Servers[math.min(1000, #Servers)], Players.LocalPlayer)
+    else
+        TeleportService:Teleport(PlaceId, Players.LocalPlayer)
+    end
+end
+while tick() - time<10 do
+    task.wait()
+end
+FindAndJoin()
+pcall(function()
+    local GuiService = game:GetService("GuiService")
+    GuiService.ErrorMessageChanged:Connect(function(msg)
+        if msg and msg ~= "" then
+            task.wait(0.5)
+            FindAndJoin()
+        end
+    end)
+end)
+]]
+
+-- ЗАПУСКАЕМ КОД ПРЯМО СЕЙЧАС
+
+-- ОБОРАЧИВАЕМ ВЕСЬ КОД В АВТОПЕРЕЗАПУСК
+if queue_on_teleport and getgenv().ScriptCode then
+    queue_on_teleport(getgenv().ScriptCode)
+    print("[Requeue] queue_on_teleport перерегистрирован")
+end
