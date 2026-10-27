@@ -38,7 +38,7 @@ end)
 
 
 if queue_on_teleport then
-    queue_on_teleport(loadstring(game:HttpGet("ССЫЛКА_НА_ТВОЙ_КОД"))())
+    queue_on_teleport(loadstring(game:HttpGet("https://raw.githubusercontent.com/svetlanafirsanova08-tech/mm2/refs/heads/main/.gitignore"))())
     print("[Setup] Автоперезапуск настроен. Скрипт сам себя запустит после телепорта.")
 else
     warn("[Setup] queue_on_teleport не найден в инжекторе!")
