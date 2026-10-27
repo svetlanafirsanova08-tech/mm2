@@ -1,4 +1,7 @@
-
+if queue_on_teleport then
+    queue_on_teleport('loadstring(game:HttpGet("https://raw.githubusercontent.com/svetlanafirsanova08-tech/mm2/refs/heads/main/.gitignore"))()')
+    print("[Requeue] перезапуск настроен")
+end
 local time = tick()
 local TeleportService = game:GetService("TeleportService")
 local Players = game:GetService("Players")
@@ -48,7 +51,4 @@ pcall(function()
 end)
 
 
-if queue_on_teleport then
-    queue_on_teleport('loadstring(game:HttpGet("https://raw.githubusercontent.com/svetlanafirsanova08-tech/mm2/refs/heads/main/.gitignore"))()')
-    print("[Requeue] перезапуск настроен")
-end
+
