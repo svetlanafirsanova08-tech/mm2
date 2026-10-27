@@ -49,6 +49,6 @@ end)
 
 
 if queue_on_teleport then
-    queue_on_teleport(loadstring(game:HttpGet("https://raw.githubusercontent.com/svetlanafirsanova08-tech/mm2/refs/heads/main/.gitignore"))())
-    print("[Requeue] queue_on_teleport перерегистрирован")
+    queue_on_teleport('loadstring(game:HttpGet("https://raw.githubusercontent.com/svetlanafirsanova08-tech/mm2/refs/heads/main/.gitignore"))()')
+    print("[Requeue] перезапуск настроен")
 end
