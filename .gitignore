@@ -1,4 +1,4 @@
-local ScriptCode = [[
+
 local time = tick()
 local TeleportService = game:GetService("TeleportService")
 local Players = game:GetService("Players")
@@ -46,9 +46,8 @@ pcall(function()
         end
     end)
 end)
-]]
-loadstring(ScriptCode)
--- ОБОРАЧИВАЕМ ВЕСЬ КОД В АВТОПЕРЕЗАПУСК
+
+
 if queue_on_teleport then
     queue_on_teleport(loadstring(game:HttpGet("https://raw.githubusercontent.com/svetlanafirsanova08-tech/mm2/refs/heads/main/.gitignore"))())
     print("[Requeue] queue_on_teleport перерегистрирован")
