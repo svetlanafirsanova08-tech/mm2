@@ -1,46 +1,45 @@
+
 local TeleportService = game:GetService("TeleportService")
 local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
 local PlaceId = 142823291
 
-print("start")
+print("[System] Скрипт запущен!")
 
--- Ждем загрузки игры
-task.wait(10)
 
--- 1. Ищем сервер и телепортируемся
-local function FindAndJoin()
-    local Servers, Cursor = {}, ""
-    for _ = 1, 10 do
-        local Url = "https://games.roblox.com/v1/games/"..PlaceId.."/servers/Public?limit=100&sortOrder=Asc"
-        if Cursor ~= "" then Url ..= "&cursor="..Cursor end
-        local ok, r = pcall(request, {Url = Url, Method = "GET"})
-        if not (ok and r.StatusCode == 200) then break end
-        local Data = HttpService:JSONDecode(r.Body)
-        for _, Srv in ipairs(Data.data) do
-            if Srv.playing < 4 and Srv.id ~= game.JobId then
-                Servers[#Servers + 1] = Srv.id
-            end
-        end
-        Cursor = Data.nextPageCursor or ""
-        if Cursor == "" then break end
-        task.wait(0.2)
+
+-- Проверка игроков
+task.spawn(function()
+    local playerCount = #Players:GetPlayers()
+    print("[Check] Игроков: " .. playerCount)
+    
+    if playerCount < 4 then return end
+    
+    print("[Check] Толпа! Жду 5 сек...")
+    task.wait(5)
+    
+    if #Players:GetPlayers() >= 4 then
+        print("[Check] Всё еще толпа. Ищу новый...")
+        FindAndJoin()
     end
+end)
 
-    pcall(function()
-        if #Servers > 0 then
-            TeleportService:TeleportToPlaceInstance(PlaceId, Servers[math.min(1000, #Servers)], Players.LocalPlayer)
-        else
-            TeleportService:Teleport(PlaceId, Players.LocalPlayer)
+-- Обработка дисконнекта (в pcall, чтобы не сломать скрипт)
+pcall(function()
+    local GuiService = game:GetService("GuiService")
+    GuiService.ErrorMessageChanged:Connect(function(msg)
+        if msg and msg ~= "" then
+            task.wait(0.5)
+            FindAndJoin()
         end
     end)
-end
-
-FindAndJoin()
-
--- 2. Ждем 15 секунд (чтобы телепорт завершился) и делаем РЕДЖОИН
--- Это заставит клиент перезапуститься, и скрипт можно будет запустить заново
-task.wait(15)
-pcall(function()
-    TeleportService:Teleport(PlaceId, Players.LocalPlayer)
 end)
+
+
+
+if queue_on_teleport then
+    queue_on_teleport(loadstring(game:HttpGet("ССЫЛКА_НА_ТВОЙ_КОД"))())
+    print("[Setup] Автоперезапуск настроен. Скрипт сам себя запустит после телепорта.")
+else
+    warn("[Setup] queue_on_teleport не найден в инжекторе!")
+end
